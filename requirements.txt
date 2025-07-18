@@ -1,0 +1,13 @@
+scikit-learn
+numpy
+pandas
+matplotlib
+seaborn
+fastapi
+uvicorn
+pydantic
+ipykernel
+simpy
+supabase
+python-dotenv
+dill
