@@ -5,8 +5,8 @@ This module provides utility functions for interacting with the Supabase databas
 import os
 import sys
 
-from sqlmodel import Session, create_engine
-from db.model import NetworkLogs
+from sqlmodel import Session, create_engine, select
+from src.db.model import NetworkData
 from src.exception.exception import CustomException
 from typing import List
 
@@ -21,16 +21,14 @@ DB_USERNAME = os.getenv("DB_USERNAME")
 SUPABASE_API_URL = os.getenv("SUPABASE_API_URL")
 
 # Create session with SQLModel
-session_engine = create_engine(SUPABASE_API_URL, echo=True)
-
-# Postgres connection string
 db_url = f"postgresql://postgres:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_USERNAME}"
+session_engine = create_engine(db_url, echo=True)
 
-# Select all the data
-def get_all_network_logs() -> List[NetworkLogs]:
+# Get all the network data logs from supabase using direct SQLModel queries
+def get_all_network_logs() -> List[NetworkData]:
   try:
     with Session(session_engine) as session:
-      statement = NetworkLogs.select()
+      statement = select(NetworkData)
       results = session.exec(statement)
       network = results.all()
       return network

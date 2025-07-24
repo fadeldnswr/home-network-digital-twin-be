@@ -12,7 +12,7 @@ import pandas as pd
 from src.utils.utils import create_supabase_client
 from src.exception.exception import CustomException
 from src.logging.logging import logging
-from typing import List, Dict
+from src.db.utils import get_all_network_logs
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -30,11 +30,9 @@ else:
 # Define class for data extraction
 class DataExtraction:
   def __init__(self):
-    self.supabase = supabase
-    if not self.supabase:
-      print("Failed to create Supabase client. Check your environment variables.")
+    self.data_logs = None
   
-  def extract_data_from_supabase(self, table_name:str) -> pd.DataFrame:
+  def extract_data_from_supabase(self) -> pd.DataFrame:
     '''
     Extract data from a specified Supabase table.
     Args:
@@ -44,15 +42,13 @@ class DataExtraction:
     '''
     try:
       # Define the response from Supabase
-      response = self.supabase.table(table_name).select("*").execute()
+      self.data_logs = get_all_network_logs() # Fetch all network logs from the database
+      if not self.data_logs:
+        raise CustomException(e, sys)
       
-      # Convert the response data to a DataFrame
-      if response.data:
-        data = pd.DataFrame(response.data)
-        return data
-      else:
-        print(f"No data found in the table '{table_name}'.")
-        return pd.DataFrame()
+      # Convert the data to pandas DataFrame
+      df = pd.DataFrame([log.model_dump() for log in self.data_logs])
+      return df
     except Exception as e:
       raise CustomException(e, sys)
 
@@ -60,7 +56,7 @@ class DataExtraction:
 if __name__ == "__main__":
   try:
     data_extraction = DataExtraction()
-    data = data_extraction.extract_data_from_supabase("network_data")
+    data = data_extraction.extract_data_from_supabase()
     print(data.head())  # Print the first few rows of the extracted data
   except Exception as e:
     raise CustomException(e, sys)
