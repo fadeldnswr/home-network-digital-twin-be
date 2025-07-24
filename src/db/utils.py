@@ -15,13 +15,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_USERNAME = os.getenv("DB_USERNAME")
 SUPABASE_API_URL = os.getenv("SUPABASE_API_URL")
 
 # Create session with SQLModel
 session_engine = create_engine(SUPABASE_API_URL, echo=True)
 
 # Postgres connection string
-db_url = f"postgresql://postgres:{DB_PASSWORD}@db.zrnnmetvtfteosglkrgw.supabase.co:5432/postgres"
+db_url = f"postgresql://postgres:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_USERNAME}"
 
 # Select all the data
 def get_all_network_logs() -> List[NetworkLogs]:
